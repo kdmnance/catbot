@@ -1,0 +1,23 @@
+{
+  "name": "catbot",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kdmnance/catbot.git"
+  },
+  "author": "Katie Nance",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kdmnance/catbot/issues"
+  },
+  "homepage": "https://github.com/kdmnance/catbot#readme",
+  "dependencies": {
+    "discord.js": "^14.15.1",
+    "dotenv": "^16.4.5"
+  }
+}
