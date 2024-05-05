@@ -5,6 +5,7 @@ import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+// register the commands
 client.commands = new Collection();
 const foldersPath = join(__dirname, "src", "commands");
 const commandFolders = readdirSync(foldersPath);
@@ -30,29 +31,24 @@ for (const folder of commandFolders) {
   }
 }
 
-client.once(Events.ClientReady, (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-});
+// register the events
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith(".js"));
 
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-  const command = interaction.client.commands.get(interaction.commandName);
+for (const file of eventFiles) {
+  const filePath = path.join(eventsPath, file);
+  const event = await import(filePath)
+    .then((module) => module.default)
+    .catch((error) => {
+      console.error(`[ERROR] An error occurred while importing the event at ${filePath}: ${error}`);
+    });
 
-  if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found.`);
-    return;
+  if (!event) break;
+  else if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args));
   }
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content: "There was an error while executing this command!", ephemeral: true });
-    } else {
-      await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
-    }
-  }
-});
+}
 
 client.login(DISCORD_TOKEN);
