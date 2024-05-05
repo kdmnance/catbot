@@ -8,37 +8,57 @@ const __dirname = path.dirname(import.meta.url);
 
 dotenv.config();
 
-const token = process.env.DISCORD_TOKEN;
+const TOKEN = process.env.DISCORD_TOKEN;
+const CATBOT_DIR = process.env.CATBOT_DIR;
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 
-const foldersPath = path.join(__dirname, "src", "commands");
-console.log("foldersPath:", foldersPath);
-const commandFolders = fs.readdirSync(foldersPath);
+const ping = await import(
+  `file:\\\\${CATBOT_DIR}\\src\\commands\\utility\\ping.js`
+).then((res) => res.default);
+client.commands.set(ping.data.name, ping);
 
-for (const folder of commandFolders) {
-  const commandsPath = path.join(foldersPath, folder);
-  const commandFiles = fs
-    .readdirSync(commandsPath)
-    .filter((file) => file.endsWith(".js"));
+const user = await import(
+  `file:\\\\${CATBOT_DIR}\\src\\commands\\utility\\user.js`
+).then((res) => res.default);
+client.commands.set(user.data.name, user);
 
-  for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    console.log("file path:", filePath);
-    const command = await import(filePath);
+const server = await import(
+  `file:\\\\${CATBOT_DIR}\\src\\commands\\utility\\server.js`
+).then((res) => res.default);
+client.commands.set(server.data.name, server);
 
-    // Set a new item in the Collection with the key as the command name and the value as the exported module
-    if ("data" in command && "execute" in command) {
-      client.commands.set(command.data.name, command);
+console.log(client.commands);
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = interaction.client.commands.get(interaction.commandName);
+
+  if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`);
+    return;
+  }
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    console.error(error);
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        content: "There was an error while executing this command!",
+        ephemeral: true,
+      });
     } else {
-      console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
-      );
+      await interaction.reply({
+        content: "There was an error while executing this command!",
+        ephemeral: true,
+      });
     }
   }
-}
+});
 
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
@@ -48,4 +68,4 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 // Log in to Discord with your client's token
-client.login(token);
+client.login(TOKEN);
