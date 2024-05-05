@@ -32,11 +32,11 @@ for (const folder of commandFolders) {
 }
 
 // register the events
-const eventsPath = path.join(__dirname, "events");
-const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith(".js"));
+const eventsPath = join(__dirname, "src", "events");
+const eventFiles = readdirSync(eventsPath).filter((file) => file.endsWith(".js"));
 
 for (const file of eventFiles) {
-  const filePath = path.join(eventsPath, file);
+  const filePath = join(eventsPath, file);
   const event = await import(filePath)
     .then((module) => module.default)
     .catch((error) => {

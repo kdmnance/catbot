@@ -5,11 +5,13 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "deployCmds": "node deploy-commands.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kdmnance/catbot.git"
+    "url": "https://github.com/kdmnance/catbot"
   },
   "author": "Katie Nance",
   "license": "ISC",
@@ -19,6 +21,7 @@
   "homepage": "https://github.com/kdmnance/catbot#readme",
   "dependencies": {
     "discord.js": "^14.15.1",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "lowdb": "^7.0.1"
   }
 }
