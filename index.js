@@ -1,33 +1,24 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
-
-const __dirname = path.dirname(import.meta.url);
 
 dotenv.config();
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const CATBOT_DIR = process.env.CATBOT_DIR;
 
+const COMMANDS_DIR = `file:\\\\${CATBOT_DIR}\\src\\commands`;
+
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 
-const ping = await import(
-  `file:\\\\${CATBOT_DIR}\\src\\commands\\utility\\ping.js`
-).then((res) => res.default);
+const ping = await import(`${COMMANDS_DIR}\\utility\\ping.js`).then((res) => res.default);
 client.commands.set(ping.data.name, ping);
 
-const user = await import(
-  `file:\\\\${CATBOT_DIR}\\src\\commands\\utility\\user.js`
-).then((res) => res.default);
+const user = await import(`${COMMANDS_DIR}\\utility\\user.js`).then((res) => res.default);
 client.commands.set(user.data.name, user);
 
-const server = await import(
-  `file:\\\\${CATBOT_DIR}\\src\\commands\\utility\\server.js`
-).then((res) => res.default);
+const server = await import(`${COMMANDS_DIR}\\utility\\server.js`).then((res) => res.default);
 client.commands.set(server.data.name, server);
 
 console.log(client.commands);
